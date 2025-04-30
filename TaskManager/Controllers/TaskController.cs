@@ -23,7 +23,7 @@ namespace TaskManager.APIs.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles ="AppUser" , Policy ="DepartmentPolicy")]
         public async Task<ActionResult<IEnumerable<TaskItemDTO>>> GetAllTasksAsync()
         {
             var Tasks = await _taskService.GetAllTasksAsync();
@@ -43,11 +43,9 @@ namespace TaskManager.APIs.Controllers
             return Ok(MappedTask);
         }
         [HttpPost]
-        [Authorize(Roles ="AppUser" , Policy = "DepartmentPolicy")]
+        [Authorize(Roles ="AppUser")]
         public async Task<ActionResult> CreateTask(TaskItem task)
         {
-            var claims = User.Claims.Select(c => new { c.Type, c.Value });
-            Console.WriteLine("User Claims: " + string.Join(", ", claims));
             if (!ModelState.IsValid)
                 return BadRequest();
             await _taskService.AddTaskAsync(task);

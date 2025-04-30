@@ -32,7 +32,9 @@ builder.Services.AddDbContext<AppIdentityDbContext>(Options =>
     Options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection"));
 });
 builder.Services.AddIdentity<AppUser, IdentityRole>()
-                .AddEntityFrameworkStores<AppIdentityDbContext>();
+                .AddEntityFrameworkStores<AppIdentityDbContext>()
+                .AddDefaultTokenProviders();
+
 builder.Services.AddAuthentication(Options =>
 {
     Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -49,17 +51,16 @@ builder.Services.AddAuthentication(Options =>
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
-                        RoleClaimType = "role"
                     };
-                }); 
-
+                });
+builder.Services.AddAuthorization(Options =>
+{
+    Options.AddPolicy("DepartmentPolicy", policy => policy.RequireClaim("Department"));
+});
 builder.Services.AddScoped<ITaskRepository,TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITokenService ,TokenService>();
-builder.Services.AddAuthorization(Options =>
-{
-    Options.AddPolicy("DepartmentPolicy", policy => policy.RequireClaim("Department , Sales"));
-});
+
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 var app = builder.Build();
 #region Update Database and data seeding

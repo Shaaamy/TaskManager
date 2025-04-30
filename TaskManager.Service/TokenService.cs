@@ -41,7 +41,7 @@ namespace TaskManager.Service
                 var Role = await roleManager.FindByNameAsync(UserRole);
                 if(Role != null)
                 {
-                    AuthClaims.Add(new Claim("role", UserRole));
+                    AuthClaims.Add(new Claim(ClaimTypes.Role, UserRole));
                     var RoleClaims = await roleManager.GetClaimsAsync(Role);    // add claims to the role
                     foreach(var RoleClaim in RoleClaims)
                     {
